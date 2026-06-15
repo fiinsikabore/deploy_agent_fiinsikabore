@@ -81,8 +81,9 @@ else
     major=$(echo "$version_number" | cut -d '.' -f 1)
       minor=$(echo "$version_number" | cut -d '.' -f 2)
 
-    echo "Python detected: $python_version" if [ "$major" -lt 3 ] || { [ "$major" -eq 3 ] && [ "$minor" -lt 6 ]; }; then
-        echo "Warning: Python $version_number is too old. Please upgrade to 3.6 or higher."
+	  echo "Python detected: $python_version"
+    if [ "$major" -lt 3 ] || [ "$major" -eq 3 -a "$minor" -lt 6 ]; then
+        echo "Warning: Python $version_number is too old."
     else
         echo "Python $version_number is good to go."
     fi
