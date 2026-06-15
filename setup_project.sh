@@ -35,17 +35,85 @@ fi
 mkdir "$project_dir"
 mkdir "$project_dir/Helpers"
 mkdir "$project_dir/reports"
+mkdir -p "$project_dir/reports"
+echo "Generating project configuration and source files..."
 
-echo "Folders created."
+# 1. Create config.json
+cat << 'EOF' > "$project_dir/Helpers/config.json"
+{
+    "thresholds": {
+        "warning": 75,
+        "failure": 50
+    },
+    "run_mode": "live",
+    "total_sessions": 15
+}
+EOF
 
-echo "Copying files..."
+# 2. Create assets.csv
+cat << 'EOF' > "$project_dir/Helpers/assets.csv"
+Email,Names,Attendance Count,Absence Count
+alice@example.com,Alice Johnson,14,1
+bob@example.com,Bob Smith,7,8
+charlie@example.com,Charlie Davis,4,11
+diana@example.com,Diana Prince,15,0
+EOF
 
-cp attendance_checker.py "$project_dir/attendance_checker.py"
-cp assets.csv "$project_dir/Helpers/assets.csv"
-cp config.json "$project_dir/Helpers/config.json"
-cp reports.log "$project_dir/reports/reports.log"
+# 3. Create attendance_checker.py
+cat << 'EOF' > "$project_dir/attendance_checker.py"
+import csv
+import json
+import os
+from datetime import datetime
 
-echo "Files copied."
+def run_attendance_check():
+    # 1. Load Config
+    with open('Helpers/config.json', 'r') as f:
+        config = json.load(f)
+    
+    # 2. Archive old reports.log if it exists
+    if os.path.exists('reports/reports.log'):
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        os.rename('reports/reports.log', f'reports/reports_{timestamp}.log.archive')
+
+    # 3. Process Data
+    with open('Helpers/assets.csv', mode='r') as f, open('reports/reports.log', 'w') as log:
+        reader = csv.DictReader(f)
+        total_sessions = config['total_sessions']
+        
+        log.write(f"--- Attendance Report Run: {datetime.now()} ---\n")
+        
+        for row in reader:
+            name = row['Names']
+            email = row['Email']
+            attended = int(row['Attendance Count'])
+            
+            # Simple Math: (Attended / Total) * 100
+            attendance_pct = (attended / total_sessions) * 100
+            
+            message = ""
+            if attendance_pct < config['thresholds']['failure']:
+                message = f"URGENT: {name}, your attendance is {attendance_pct:.1f}%. You will fail this class."
+            elif attendance_pct < config['thresholds']['warning']:
+                message = f"WARNING: {name}, your attendance is {attendance_pct:.1f}%. Please be careful."
+            
+            if message:
+                if config['run_mode'] == "live":
+                    log.write(f"[{datetime.now()}] ALERT SENT TO {email}: {message}\n")
+                    print(f"Logged alert for {name}")
+                else:
+                    print(f"[DRY RUN] Email to {email}: {message}")
+
+if __name__ == "__main__":
+    run_attendance_check()
+EOF
+
+# 4. Create reports.log
+cat << 'EOF' > "$project_dir/reports/reports.log"
+--- Attendance Reports Log ---
+This file is generated automatically by setup_project.sh
+
+EOF
 
 echo "Do you want to update the attendance thresholds? (y/n)"
 read update_config
@@ -70,8 +138,7 @@ if [ "$update_config" = "y" ]; then
 else
     echo "Keeping default thresholds."
 fi
-echo "Ru
-nning health check..."
+echo "Running health check..."
 python_version=$(python3 --version 2>&1)
 
 if [ $? -ne 0 ]; then
