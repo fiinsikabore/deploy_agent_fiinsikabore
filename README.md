@@ -1,48 +1,84 @@
-# Project: Automated Project Bootstrapping & Process Management
+# deploy_agent_fiinsikabore
 
-## Project Description
-This project implements an automated deployment tool ("Project Factory") developed as a Bash shell script (`setup_project.sh`). It dynamically bootstraps the environment for a Student Attendance Tracker application using Infrastructure as Code (IaC) principles. 
+## What this project does
+This script automatically sets up the Student Attendance Tracker project.
+It creates the folder structure, copies the source files, updates the config, and handles interruptions gracefully.
 
-The script handles automated directory creation, interactive configuration updates via stream editing (`sed`), environment validation, and robust runtime workspace cleanup using system signal traps.
+## How to run the script
 
----
-
-## Workspace Architecture
-
-When completed successfully, the master script generates the following exact directory structure inside your repository:
-
-```text
-attendance_tracker_{input}/               <-- Dynamic Parent Directory
-├── attendance_checker.py                 <-- Core Application Logic
-├── Helpers/                              <-- Configuration Directory
-│   ├── assets.csv                        <-- Student Records Database
-│   └── config.json                       <-- Threshold Settings (Modified by sed)
-└── reports/                              <-- Logging Directory
-    └── reports.log                       <-- Initial Application Logs
-
-### Step 1: Open Terminal & Navigate
-Launch your command-line interface (use Git Bash if you are on Windows).
-Run the following command to move into your project repository directory:
+Step 1 - Clone the repository:
 ```bash
-- cd ~/deploy_agent_fiinsikabore
-###Step 2: Run the Bootstrapping Script
-Start the automated deployment process by executing the master script.
-This action initiates the environment setup and system diagnostics:
+git clone https://github.com/fiinsikabore/deploy_agent_fiinsikabore.git
+```
 
-- bash setup_project.sh
+Step 2 - Enter the folder:
+```bash
+cd deploy_agent_fiinsikabore
+```
 
-###Step 3: Complete Interactive Prompts
-Enter a custom workspace name when prompted (for example: june11).
-Type y to update attendance thresholds and input your custom numbers.
-The script uses sed to dynamically update your configuration files.
+Step 3 - Run the script:
+```bash
+bash setup_project.sh
+```
 
-###Step 4: Verify Directory Structure
-Ensure all folders and tracking files were generated in the correct locations.
-Run this command to print and inspect the newly created workspace layout:
+Step 4 - Answer the questions that appear:
+- Enter a project name example: v1
+- The script creates attendance_tracker_v1/ automatically
+- Choose if you want to update the thresholds y or n
+- If y: enter new Warning % and Failure %
 
-- find attendance_tracker_june11 -not -path '*/.*' | sed -e 's;[^/]*/;|____;g;s;____|; |;g'
+Step 5 - The script will then:
+- Copy all source files into the right folders
+Step 5 - The script will then:
+- Copy all source files into the right folders
+- Update config.json if you changed thresholds
+- Check if python3 is installed
+- Verify all files are in place
 
-###Step 5: Test the Process Cleanup Trap
-Re-run the script with a temporary name like interrupted_run.
-Press Ctrl + C during the threshold prompt to trigger the signal trap.
-Verify it creates a .tar.gz archive and wipes the raw folder clean.
+## What the script creates
+
+attendance_tracker_v1/
+
+├── attendance_checker.py
+
+├── Helpers/
+
+│   ├── assets.csv
+
+│   └── config.json
+
+└── reports/
+
+└── reports.log
+
+## How to trigger the Archive feature
+
+The script has a Trap that catches Ctrl+C interruptions.
+
+To test it:
+
+Step 1 - Run the script:
+```bash
+bash setup_project.sh
+```
+
+Step 2 - Enter a project name
+
+Step 3 - Press Ctrl+C at any moment during execution
+
+What happens automatically:
+- The script catches the interruption
+- It bundles the current folder into a .tar.gz archive named attendance_tracker_v1_archive.tar.gz
+- It deletes the incomplete folder
+- It exits cleanly
+
+## How to run the tracker after setup
+
+```bash
+cd attendance_tracker_v1
+python3 attendance_checker.py
+```
+
+## Video Walkthrough
+
+[PASTE YOUR GOOGLE DRIVE VIDEO LINK HERE]
