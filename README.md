@@ -80,5 +80,5 @@ python3 attendance_checker.py
 ```
 
 ## Video Walkthrough
+https://drive.google.com/file/d/1gYDdzE76-2WGOotfBGBmGW2s7moZ7QZA/view?usp=sharing
 
-[PASTE YOUR GOOGLE DRIVE VIDEO LINK HERE]
